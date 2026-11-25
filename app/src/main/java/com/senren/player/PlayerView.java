@@ -540,6 +540,16 @@ public class PlayerView extends View {
         return btnPaint.measureText("+ Add songs") + 35f;
     }
 
+    /** Tombol Add songs diratakan ke tepi kanan bingkai utama. */
+    private float addLeft() {
+        return 452f - addW();
+    }
+
+    /** Ikon hapus mengikuti tombol Add songs dengan jarak tetap 15 px. */
+    private float trashCenterX() {
+        return addLeft() - 30f;
+    }
+
     private void drawPill(Canvas c, RectF r, String label, boolean filled) {
         float rad = r.height() / 2f;
         if (filled) {
@@ -557,11 +567,12 @@ public class PlayerView extends View {
 
     private void drawTopBar(Canvas c) {
         float aw = addW();
-        RectF a = new RectF(290, 22, 290 + aw, 54);
+        float ax = addLeft();
+        RectF a = new RectF(ax, 22, ax + aw, 54);
         drawPill(c, a, "+ Add songs", addDown);
 
         if (!TrackStore.tracks.isEmpty()) {
-            float cx = 244 + 16, cy = 22 + 16;
+            float cx = trashCenterX(), cy = 22 + 16;
             if (clrDown) {
                 fill.setColor(ACCENT);
                 c.drawCircle(cx, cy, 16, fill);
@@ -722,13 +733,13 @@ public class PlayerView extends View {
                 return true;
             }
         }
-        if (in(x, y, 290, 22, addW(), 32)) {
+        if (in(x, y, addLeft(), 22, addW(), 32)) {
             mode = M_ADD;
             addDown = true;
             invalidate();
             return true;
         }
-        if (!TrackStore.tracks.isEmpty() && in(x, y, 244, 22, 32, 32)) {
+        if (!TrackStore.tracks.isEmpty() && in(x, y, trashCenterX() - 16, 22, 32, 32)) {
             mode = M_CLR;
             clrDown = true;
             invalidate();
@@ -767,11 +778,11 @@ public class PlayerView extends View {
                 invalidate();
                 break;
             case M_ADD:
-                addDown = in(x, y, 290, 22, addW(), 32);
+                addDown = in(x, y, addLeft(), 22, addW(), 32);
                 invalidate();
                 break;
             case M_CLR:
-                clrDown = in(x, y, 244, 22, 32, 32);
+                clrDown = in(x, y, trashCenterX() - 16, 22, 32, 32);
                 invalidate();
                 break;
             case M_SCROLL:
