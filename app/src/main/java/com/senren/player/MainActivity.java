@@ -103,7 +103,7 @@ public class MainActivity extends Activity {
         try {
             startActivityForResult(i, REQ_PICK);
         } catch (Exception e) {
-            view.notice("Tidak ada aplikasi pemilih folder di perangkat ini.");
+            view.notice("No folder picker app was found on this device.");
         }
     }
 
@@ -164,11 +164,11 @@ public class MainActivity extends Activity {
         TrackStore.save(this);
         view.refresh();
         if (found.isEmpty()) {
-            view.notice("Tidak ada file musik di folder itu.");
+            view.notice("No music files were found in that folder.");
         } else if (added == 0) {
-            view.notice("Semua lagu di folder itu sudah ada di daftar.");
+            view.notice("All songs in that folder are already in the list.");
         } else {
-            view.notice(added + " lagu ditambahkan dari folder.");
+            view.notice(added + (added == 1 ? " song" : " songs") + " added from the folder.");
         }
     }
 
@@ -205,7 +205,7 @@ public class MainActivity extends Activity {
                 if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mime)) {
                     subDirs.add(id);
                 } else if (isAudio(mime, name)) {
-                    if (name == null) name = "Lagu";
+                    if (name == null) name = "Song";
                     Track t = new Track();
                     t.file = name;
                     t.name = name.replaceFirst("\\.[^.]+$", "");

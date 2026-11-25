@@ -77,7 +77,7 @@ public class PlaybackService extends Service {
         am = (AudioManager) getSystemService(AUDIO_SERVICE);
         if (Build.VERSION.SDK_INT >= 26) {
             NotificationChannel ch = new NotificationChannel(
-                    CHANNEL, "Pemutaran musik", NotificationManager.IMPORTANCE_LOW);
+                    CHANNEL, "Music playback", NotificationManager.IMPORTANCE_LOW);
             ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(ch);
         }
     }
@@ -388,13 +388,13 @@ public class PlaybackService extends Service {
 
         b.setSmallIcon(R.drawable.ic_stat_note)
                 .setContentTitle(title)
-                .setContentText(playing ? "Memutar" : "Dijeda")
+                .setContentText(playing ? "Playing" : "Paused")
                 .setOngoing(playing)
                 .setOnlyAlertOnce(true)
                 .setContentIntent(cpi);
-        b.addAction(action("Sebelumnya", A_PREV));
-        b.addAction(action(playing ? "Jeda" : "Putar", A_TOGGLE));
-        b.addAction(action("Berikutnya", A_NEXT));
+        b.addAction(action("Previous", A_PREV));
+        b.addAction(action(playing ? "Pause" : "Play", A_TOGGLE));
+        b.addAction(action("Next", A_NEXT));
         return b.build();
     }
 

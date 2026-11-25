@@ -29,6 +29,8 @@ public class PlayerView extends View {
     private static final int LINE = 0xFFE2DDD6;
     private static final int WHITE = 0xFFFFFFFF;
     private static final int ROW = 60;
+    /** Pusat vertikal ikon bunga/play & garis pemisah di dalam baris (satuan stage). */
+    private static final float ROW_MID = 27.5f;
     private static final float SW = 475f;
     private static final float SH = 798f;
 
@@ -36,7 +38,7 @@ public class PlayerView extends View {
             M_VOL = 4, M_ADD = 5, M_CLR = 6, M_DLG = 7;
 
     private static final String EMPTY_TEXT =
-            "Belum ada lagu. Ketuk \u201CTambah lagu\u201D untuk memilih folder musik dari perangkatmu.";
+            "No songs yet. Tap \u201CAdd songs\u201D to choose a music folder from your device.";
 
     private static class Btn {
         final String id;
@@ -71,7 +73,9 @@ public class PlayerView extends View {
 
     private final MainActivity host;
 
-    private final Bitmap bgT, bgM, bgSb, frT, frM, frSb, strack, vtrack, thumb, thumbDn, rowN, rowP;
+    private final Bitmap bgT, bgM, bgSb, frT, frM, frSb, strack, vtrack, rowN, rowP;
+    private Bitmap thumb, thumbDn;
+    private float thumbBuiltScale = -1f;
     private final Btn[] btns;
 
     private final Paint bmpP = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
@@ -126,10 +130,9 @@ public class PlayerView extends View {
         frSb = bmp(R.drawable.fr_sb);
         strack = bmp(R.drawable.strack);
         vtrack = bmp(R.drawable.vtrack);
-        thumb = vec(R.drawable.thumb, 34, 34);
-        thumbDn = vec(R.drawable.thumb_dn, 34, 34);
-        rowN = vec(R.drawable.row_n, 332, 38);
-        rowP = vec(R.drawable.row_p, 332, 39);
+        buildThumbs(1f);
+        rowN = vec(R.drawable.row_n, 332, 41);
+        rowP = vec(R.drawable.row_p, 332, 41);
 
         btns = new Btn[]{
                 new Btn("up5", 385, 103, 40, false, vec(R.drawable.b_up5_n, 40, 40), vec(R.drawable.b_up5_p, 40, 40)),
@@ -165,6 +168,11 @@ public class PlayerView extends View {
         cor18 = ascentGap(tp18, ref);
         cor15 = ascentGap(tp15, ref);
         cor16 = ascentGap(tp16, ref);
+        android.graphics.Rect hb = new android.graphics.Rect();
+        tp18.getTextBounds("H", 0, 1, hb);
+        cap18 = hb.height();
+        tp15.getTextBounds("H", 0, 1, hb);
+        cap15 = hb.height();
 
         stroke.setStyle(Paint.Style.STROKE);
         fill.setStyle(Paint.Style.FILL);
@@ -189,6 +197,7 @@ public class PlayerView extends View {
     }
 
     private float cor18, cor15, cor16;
+    private float cap18, cap15;
 
     private static float ascentGap(TextPaint p, Typeface ref) {
         TextPaint r = new TextPaint(p);
@@ -207,6 +216,44 @@ public class PlayerView extends View {
         d.setBounds(0, 0, w * VK, h * VK);
         d.draw(cv);
         return b;
+    }
+
+
+    /** Thumb dirender persis pada ukuran piksel layar (tanpa downscale) + bayangan blur asli, supaya tepinya tajam. */
+    private Bitmap thumbBmp(int id, float sc) {
+        int pad = Math.round(4f * sc);
+        int body = Math.max(1, Math.round(34f * sc));
+        int size = body + pad * 2;
+        Bitmap b = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Canvas cv = new Canvas(b);
+        // bayangan: sama dengan SVG (r 15.054, turun ~1, sigma 1.143, alpha 0.245)
+        Paint sh = new Paint(Paint.ANTI_ALIAS_FLAG);
+        sh.setColor(0xFF000000);
+        sh.setAlpha(Math.round(255 * 0.245f));
+        sh.setMaskFilter(new android.graphics.BlurMaskFilter(Math.max(1f, 2f * 1.143f * sc), android.graphics.BlurMaskFilter.Blur.NORMAL));
+        float u = body / 34f;
+        cv.drawCircle(pad + 17f * u, pad + 16.995f * u, 15.054f * u, sh);
+        Drawable d = getResources().getDrawable(id, getContext().getTheme());
+        d.setBounds(pad, pad, pad + body, pad + body);
+        d.draw(cv);
+        return b;
+    }
+
+    private void buildThumbs(float sc) {
+        if (Math.abs(sc - thumbBuiltScale) < 0.001f) return;
+        thumbBuiltScale = sc;
+        thumb = thumbBmp(R.drawable.thumb, sc);
+        thumbDn = thumbBmp(R.drawable.thumb_dn, sc);
+    }
+
+    /** Gambar thumb 34x34 (stage) di (x,y), posisi dibulatkan ke piksel layar agar tidak blur. */
+    private void drawThumb(Canvas c, Bitmap bm, float x, float y) {
+        int padPx = Math.round(4f * thumbBuiltScale);
+        float dl = Math.round(offX + x * scale) - padPx;
+        float dt = Math.round(offY + y * scale) - padPx;
+        float sz = bm.getWidth();
+        c.drawBitmap(bm, null, rf((dl - offX) / scale, (dt - offY) / scale,
+                (dl + sz - offX) / scale, (dt + sz - offY) / scale), bmpP);
     }
 
     private Bitmap bmp(int id) {
@@ -229,7 +276,7 @@ public class PlayerView extends View {
         }
         if (PlaybackService.error) {
             PlaybackService.error = false;
-            notice("Lagu tidak dapat diputar. File mungkin sudah dipindahkan atau dihapus.");
+            notice("This song can't be played. The file may have been moved or deleted.");
         }
         invalidate();
     }
@@ -258,7 +305,7 @@ public class PlayerView extends View {
     }
 
     private void askRemove(final Track t) {
-        ask("Hapus \u201C" + t.name + "\u201D dari daftar?", "Hapus", "Batal", new Runnable() {
+        ask("Remove \u201C" + t.name + "\u201D from the list?", "Remove", "Cancel", new Runnable() {
             @Override
             public void run() {
                 int i = TrackStore.tracks.indexOf(t);
@@ -268,8 +315,9 @@ public class PlayerView extends View {
     }
 
     private void askClear() {
-        ask("Kosongkan seluruh daftar lagu (" + TrackStore.tracks.size() + " lagu)?",
-                "Kosongkan", "Batal", new Runnable() {
+        ask("Clear the entire song list (" + TrackStore.tracks.size()
+                        + (TrackStore.tracks.size() == 1 ? " song" : " songs") + ")?",
+                "Clear", "Cancel", new Runnable() {
                     @Override
                     public void run() {
                         host.clearAll();
@@ -290,6 +338,7 @@ public class PlayerView extends View {
         }
         scale = s;
         E = e;
+        buildThumbs(s);
         offX = (w - SW * s) / 2f;
         offY = (h - (SH + E) * s) / 2f;
         scrollY = clampS(scrollY);
@@ -392,11 +441,8 @@ public class PlayerView extends View {
         }
 
         // thumb
-        c.drawBitmap(sThumbDown ? thumbDn : thumb, null,
-                rf(388, thumbTop(), 388 + 34, thumbTop() + 34), bmpP);
-        float vl = vThumbLeft();
-        c.drawBitmap(vThumbDown ? thumbDn : thumb, null,
-                rf(vl, 721 + e, vl + 34, 721 + e + 34), bmpP);
+        drawThumb(c, sThumbDown ? thumbDn : thumb, 388, thumbTop());
+        drawThumb(c, vThumbDown ? thumbDn : thumb, vThumbLeft(), 721 + e);
 
         drawDialog(c);
         c.restore();
@@ -455,15 +501,20 @@ public class PlayerView extends View {
                 boolean isCur = i == PlaybackService.cur;
                 boolean on = isCur && PlaybackService.playing;
                 Bitmap rb = on ? rowP : rowN;
-                c.drawBitmap(rb, null, rf(0, top + 21, 332, top + 21 + rb.getHeight() / VK), bmpP);
+                c.drawBitmap(rb, null, rf(0, top + 18, 332, top + 18 + rb.getHeight() / VK), bmpP);
 
                 ensureLayout(t);
                 TextPaint tp = t.small ? tp15 : tp18;
                 tp.setColor(isCur ? ACCENT : INK);
-                float th = t.layout.getHeight();
+                // seimbangkan secara visual: tengah tinta huruf (tinggi kapital -> baseline terakhir)
+                // diratakan ke pusat ikon/baris (top + ROW_MID), bukan ke kotak baris font
+                float capH = t.small ? cap15 : cap18;
+                int lastLine = t.layout.getLineCount() - 1;
+                float inkTop = t.layout.getLineBaseline(0) - capH;
+                float inkBot = t.layout.getLineBaseline(lastLine);
                 c.save();
                 c.clipRect(38, top, 322, top + ROW);
-                c.translate(38, top + (ROW - th) / 2f - (t.small ? cor15 : cor18));
+                c.translate(38, top + ROW_MID - (inkTop + inkBot) / 2f);
                 t.layout.draw(c);
                 c.restore();
             }
@@ -486,7 +537,7 @@ public class PlayerView extends View {
     }
 
     private float addW() {
-        return btnPaint.measureText("+ Tambah lagu") + 35f;
+        return btnPaint.measureText("+ Add songs") + 35f;
     }
 
     private void drawPill(Canvas c, RectF r, String label, boolean filled) {
@@ -507,7 +558,7 @@ public class PlayerView extends View {
     private void drawTopBar(Canvas c) {
         float aw = addW();
         RectF a = new RectF(290, 22, 290 + aw, 54);
-        drawPill(c, a, "+ Tambah lagu", addDown);
+        drawPill(c, a, "+ Add songs", addDown);
 
         if (!TrackStore.tracks.isEmpty()) {
             float cx = 244 + 16, cy = 22 + 16;
