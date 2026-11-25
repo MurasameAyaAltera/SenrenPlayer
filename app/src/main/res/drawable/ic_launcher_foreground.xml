@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="1536" android:viewportHeight="1536">
+    <group android:translateX="256" android:translateY="256">
+        <group android:translateX="512" android:translateY="512" android:rotation="0">
+            <group android:translateY="-62" android:scaleX="0.93" android:scaleY="1.1">
+                <path android:pathData="M0,0C-55,-60 -150,-125 -142,-225C-138,-295 -62,-325 0,-272C62,-325 138,-295 142,-225C150,-125 55,-60 0,0Z">
+                    <aapt:attr name="android:fillColor">
+                        <gradient android:type="radial" android:centerX="0" android:centerY="0" android:gradientRadius="292" android:startColor="#E5645F" android:endColor="#EE7D76" />
+                    </aapt:attr>
+                </path>
+            </group>
+        </group>
+        <group android:translateX="512" android:translateY="512" android:rotation="72">
+            <group android:translateY="-62" android:scaleX="0.93" android:scaleY="1.1">
+                <path android:pathData="M0,0C-55,-60 -150,-125 -142,-225C-138,-295 -62,-325 0,-272C62,-325 138,-295 142,-225C150,-125 55,-60 0,0Z">
+                    <aapt:attr name="android:fillColor">
+                        <gradient android:type="radial" android:centerX="0" android:centerY="0" android:gradientRadius="292" android:startColor="#E5645F" android:endColor="#EE7D76" />
+                    </aapt:attr>
+                </path>
+            </group>
+        </group>
+        <group android:translateX="512" android:translateY="512" android:rotation="144">
+            <group android:translateY="-62" android:scaleX="0.93" android:scaleY="1.1">
+                <path android:pathData="M0,0C-55,-60 -150,-125 -142,-225C-138,-295 -62,-325 0,-272C62,-325 138,-295 142,-225C150,-125 55,-60 0,0Z">
+                    <aapt:attr name="android:fillColor">
+                        <gradient android:type="radial" android:centerX="0" android:centerY="0" android:gradientRadius="292" android:startColor="#E5645F" android:endColor="#EE7D76" />
+                    </aapt:attr>
+                </path>
+            </group>
+        </group>
+        <group android:translateX="512" android:translateY="512" android:rotation="216">
+            <group android:translateY="-62" android:scaleX="0.93" android:scaleY="1.1">
+                <path android:pathData="M0,0C-55,-60 -150,-125 -142,-225C-138,-295 -62,-325 0,-272C62,-325 138,-295 142,-225C150,-125 55,-60 0,0Z">
+                    <aapt:attr name="android:fillColor">
+                        <gradient android:type="radial" android:centerX="0" android:centerY="0" android:gradientRadius="292" android:startColor="#E5645F" android:endColor="#EE7D76" />
+                    </aapt:attr>
+                </path>
+            </group>
+        </group>
+        <group android:translateX="512" android:translateY="512" android:rotation="288">
+            <group android:translateY="-62" android:scaleX="0.93" android:scaleY="1.1">
+                <path android:pathData="M0,0C-55,-60 -150,-125 -142,-225C-138,-295 -62,-325 0,-272C62,-325 138,-295 142,-225C150,-125 55,-60 0,0Z">
+                    <aapt:attr name="android:fillColor">
+                        <gradient android:type="radial" android:centerX="0" android:centerY="0" android:gradientRadius="292" android:startColor="#E5645F" android:endColor="#EE7D76" />
+                    </aapt:attr>
+                </path>
+            </group>
+        </group>
+    </group>
+</vector>
