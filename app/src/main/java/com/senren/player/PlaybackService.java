@@ -288,9 +288,16 @@ public class PlaybackService extends Service {
         });
         mp.setOnCompletionListener(m -> {
             if (loopAll) {
+                // b_loop_p: loop semua playlist
                 step(1);
             } else {
-                stopPlay();
+                // b_loop_n: loop satu lagu
+                try {
+                    m.seekTo(0);
+                    m.start();
+                } catch (Exception e) {
+                    if (cur >= 0) play(cur);
+                }
             }
         });
         mp.setOnErrorListener((m, what, extra) -> {
